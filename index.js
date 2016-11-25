@@ -87,8 +87,13 @@ module.exports = function (entryPoint, serverPort, ALLOW_CORS) {
       if (!fs.existsSync(dirPath)) {
         var mkdirpSync = function (dirPath) {
           var parts = dirPath.split(path.sep);
-          for( var i = 2; i <= parts.length; i++ ) {
-            fs.mkdirSync( path.join.apply(null, parts.slice(0, i)) );
+
+          for( var i = 1; i <= parts.length; i++ ) {
+            var newPath = parts.slice(0, i);
+            
+            if (!fs.existsSync(newPath)) {
+              fs.mkdirSync( path.join.apply(null, newPath) );
+            }
           }
         }
 
