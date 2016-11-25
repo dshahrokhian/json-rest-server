@@ -83,7 +83,18 @@ module.exports = function (entryPoint, serverPort, ALLOW_CORS) {
     /*
      On POST method checks if directory exists
      */
-    else if (request.method == 'POST' && fs.existsSync(dirPath)) {
+    else if (request.method == 'POST') {
+      if (!fs.existsSync(dirPath)) {
+        var mkdirpSync = function (dirPath) {
+          var parts = dirPath.split(path.sep);
+          for( var i = 2; i <= parts.length; i++ ) {
+            fs.mkdirSync( path.join.apply(null, parts.slice(0, i)) );
+          }
+        }
+
+        mkdirpSync(dirPath);
+      }
+
       // Retrieve request content
       request.on('data', function (chunk) {
         var jsonContent;
