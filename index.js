@@ -89,10 +89,10 @@ module.exports = function (entryPoint, serverPort, ALLOW_CORS) {
           var parts = dirPath.split(path.sep);
 
           for( var i = 1; i <= parts.length; i++ ) {
-            var newPath = parts.slice(0, i);
-            
+            var newPath = path.join.apply(null, parts.slice(0, i));
+
             if (!fs.existsSync(newPath)) {
-              fs.mkdirSync( path.join.apply(null, newPath) );
+              fs.mkdirSync(newPath);
             }
           }
         }
