@@ -74,6 +74,22 @@ class SneakPeakAlgorithm {
     return output;
   }
   
+  /** Given a new event, determines how meaningful was the previous one. 
+   *  In particular, the difference in time-stamps from the previous event to 
+   *  this new one determines how much time the user spent in the previous area.
+   *  
+   *  The interest depends on both time spent and area. Smaller the area,
+   *  greater the interest weight applied to it. It is done in such a way that
+   *  if the area of the previous event is equal to the whole image, the 
+   *  interest is zero, no matter how much time the user spent on it. The 
+   *  reason for this decision is that we want to gather the interest areas 
+   *  on the image, and the user looking at the whole image itself does not give us 
+   *  any useful insight.
+   * 
+   * @param ev new interest-event needed to calculate the impact of the previous
+   * area
+   * @return interest of the previous recorded event
+   */
   private def getInterest(ev : InterestEvent) : Float = {
     
     val areaWidth = abs(prevEvent.get.upper_left_x - prevEvent.get.bottom_right_x)
@@ -98,8 +114,7 @@ class SneakPeakAlgorithm {
   
   /** Normalizes the interest value to a Byte range */
   private def normalize(value: Float) : Int = {
-    return Math.round((value) 
-            / maxInterestVal * 255)
+    return Math.round((value) / maxInterestVal * 255)
   }
 
 }
