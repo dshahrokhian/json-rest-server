@@ -2,6 +2,7 @@ package sneakPeak
 
 import Math.abs
 import Math.max
+import Math.min
 import java.awt.image.BufferedImage
 import java.awt.Graphics2D
 import java.awt.Color
@@ -32,15 +33,19 @@ class SneakPeakAlgorithm {
    *  @param ev Event to be added to the algorithm
    */
   def addEvent(ev: InterestEvent) : Unit = {
-    val interest = getInterest(ev)
     
     if (prevEvent.isDefined) {
+      val interest = getInterest(ev)
+      
       apply(interest, prevEvent.get)
+      
+      this.maxInterestVal = max(this.maxInterestVal, interest)
+      if (interest != Float.MinValue) {
+        this.minInterestVal = min(this.minInterestVal, interest)
+      }
     }
     
-    this.prevEvent = Some(ev);
-    this.maxInterestVal = max(this.maxInterestVal, interest)
-    this.minInterestVal = max(this.minInterestVal, interest)
+    prevEvent = Some(ev);
   }
   
   /** Generates a heat-map of the most visited zones of the image, overlaid
@@ -63,12 +68,13 @@ class SneakPeakAlgorithm {
     val output = new BufferedImage(image.getWidth, image.getHeight, 
         BufferedImage.TYPE_INT_ARGB)
     
-    val graphics = output.createGraphics()
-    graphics.setPaint ( new Color ( 0, 0, 0, 0 ) )
-    graphics.fillRect ( 0, 0, image.getWidth, image.getHeight )
+    // Set the heat-map overlay to be completely transparent at the beginning
+    //val graphics = output.createGraphics()
+    //graphics.setPaint ( new Color ( 0, 0, 0, 255 ) )
+    //graphics.fillRect ( 0, 0, image.getWidth, image.getHeight )
     
-    for (x <- 0 to image.getWidth) {
-      for (y <- 0 to image.getHeight) {
+    for (x <- 0 until image.getWidth) {
+      for (y <- 0 until image.getHeight) {
         // Create a Red overlay with the interest, with a transparency of 75%
         output.setRGB(x, y, 
             (normalize(heatMap(x)(y)) << RED)
@@ -81,20 +87,19 @@ class SneakPeakAlgorithm {
   
   private def getInterest(ev : InterestEvent) : Float = {
     
-    val areaWidth = abs(ev.upperLeftX - ev.bottomRightX)
-    val areaHeight = abs(ev.upperLeftY - ev.bottomRightY)
+    val areaWidth = abs(prevEvent.get.upper_left_x - prevEvent.get.bottom_right_x)
+    val areaHeight = abs(prevEvent.get.upper_left_y - prevEvent.get.bottom_right_y)
     
-    val timeDiff = ev.timestamp - prevEvent.getOrElse(ev).timestamp
+    val timeDiff = ev.time - prevEvent.getOrElse(ev).time
     val areaDiff = abs(image.getWidth - areaWidth) 
                     + abs(image.getHeight - areaHeight)
-    
+                    
     return areaDiff / 2 * timeDiff
   }
   
-  private def apply(interest : Float, ev : InterestEvent ) = {
-    
-    for (x <- ev.upperLeftX to ev.bottomRightX) {
-      for (y <- ev.upperLeftY to ev.bottomRightY) {
+  private def apply(interest : Float, ev : InterestEvent) = {
+    for (x <- ev.upper_left_x until ev.bottom_right_x) {
+      for (y <- ev.upper_left_y until ev.bottom_right_y) {
         heatMap(x)(y) += interest
       }
     }
