@@ -15,13 +15,11 @@ class SneakPeakAlgorithm {
   private val ALPHA = 24; /* Shifting with this mask will only change the
   																Alpha byte in a ARGB Int */
   private var image : BufferedImage = _
-  private var minInterestVal = Float.MaxValue
   private var maxInterestVal = Float.MinValue
   private var prevEvent: Option[InterestEvent] = None
   private var heatMap = Array(Array[Float]())
   
   def this(img: BufferedImage) = {
-    
     this()
     image = img
     heatMap = Array.ofDim[Float](image.getWidth, image.getHeight)
@@ -39,10 +37,6 @@ class SneakPeakAlgorithm {
       
       apply(interest, prevEvent.get)
       
-      this.maxInterestVal = max(this.maxInterestVal, interest)
-      if (interest != Float.MinValue) {
-        this.minInterestVal = min(this.minInterestVal, interest)
-      }
     }
     
     prevEvent = Some(ev);
@@ -92,16 +86,20 @@ class SneakPeakAlgorithm {
     return areaDiff / 2 * timeDiff
   }
   
+  /** Applies the interest to the event's area, and updates the maximum interest seen so far */
   private def apply(interest : Float, ev : InterestEvent) = {
     for (x <- ev.upper_left_x until ev.bottom_right_x) {
       for (y <- ev.upper_left_y until ev.bottom_right_y) {
         heatMap(x)(y) += interest
+        maxInterestVal = max(maxInterestVal, heatMap(x)(y))
       }
     }
   }
   
-  private def normalize(value : Float) : Int = {
-    return Math.round((value - this.minInterestVal) 
-            / this.maxInterestVal * 255)
+  /** Normalizes the interest value to a Byte range */
+  private def normalize(value: Float) : Int = {
+    return Math.round((value) 
+            / maxInterestVal * 255)
   }
+
 }
