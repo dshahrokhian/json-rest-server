@@ -68,11 +68,6 @@ class SneakPeakAlgorithm {
     val output = new BufferedImage(image.getWidth, image.getHeight, 
         BufferedImage.TYPE_INT_ARGB)
     
-    // Set the heat-map overlay to be completely transparent at the beginning
-    //val graphics = output.createGraphics()
-    //graphics.setPaint ( new Color ( 0, 0, 0, 255 ) )
-    //graphics.fillRect ( 0, 0, image.getWidth, image.getHeight )
-    
     for (x <- 0 until image.getWidth) {
       for (y <- 0 until image.getHeight) {
         // Create a Red overlay with the interest, with a transparency of 75%
