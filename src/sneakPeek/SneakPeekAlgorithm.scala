@@ -1,4 +1,4 @@
-package sneakPeak
+package sneakPeek
 
 import Math.abs
 import Math.max
@@ -8,7 +8,7 @@ import java.awt.Graphics2D
 import java.awt.Color
 import java.awt.Graphics
 
-class SneakPeakAlgorithm {  
+class SneakPeekAlgorithm {  
   
   private val RED = 16; /* Shifting with this mask will only change the
                                    Red byte in a ARGB Int */

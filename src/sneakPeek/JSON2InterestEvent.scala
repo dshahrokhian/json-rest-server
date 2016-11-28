@@ -1,4 +1,4 @@
-package sneakPeak
+package sneakPeek
 
 import org.json4s._
 import org.json4s.native.JsonMethods._

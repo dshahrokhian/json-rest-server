@@ -1,4 +1,4 @@
-package sneakPeak
+package sneakPeek
 
 case class InterestEvent(upper_left_x: Int,
     upper_left_y: Int,

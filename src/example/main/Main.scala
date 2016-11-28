@@ -1,11 +1,11 @@
 package example.main
 
-import sneakPeak.SneakPeakAlgorithm
+import sneakPeek.SneakPeekAlgorithm
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.io.File
-import sneakPeak.JSON2InterestEvent
-import sneakPeak.JSON2InterestEvent
+import sneakPeek.JSON2InterestEvent
+import sneakPeek.JSON2InterestEvent
 
 object Main {
   def main(args: Array[String]) {
@@ -14,7 +14,7 @@ object Main {
     val dataPath = "src/example/resources/userData/"
     
     val image = ImageIO.read(new File(imagePath + "image.jpg"))
-    val algo = new SneakPeakAlgorithm(image)
+    val algo = new SneakPeekAlgorithm(image)
     
     for (i <- 0 to 18) {
       val ev = JSON2InterestEvent.file2interestEvent(dataPath + i + ".json")
