@@ -32,11 +32,8 @@ class SneakPeekAlgorithm {
    */
   def addEvent(ev: InterestEvent) : Unit = {
     
-    if (prevEvent.isDefined) {
-      val interest = getInterest(ev)
-      
-      apply(interest, prevEvent.get)
-      
+    if (prevEvent.isDefined) {      
+      apply(getInterest(ev), prevEvent.get)
     }
     
     prevEvent = Some(ev);
@@ -64,10 +61,14 @@ class SneakPeekAlgorithm {
     
     for (x <- 0 until image.getWidth) {
       for (y <- 0 until image.getHeight) {
-        // Create a Red overlay with the interest, with a transparency of 75%
-        output.setRGB(x, y, 
-            (normalize(heatMap(x)(y)) << RED)
-            + (192 << ALPHA) ) 
+        // Create a Red overlay with the interest, with a maximum transparency of 50%
+        if(heatMap(x)(y) > 0) {
+          output.setRGB(x, y, 
+            (Math.round(normalize(heatMap(x)(y))*0.5F) << ALPHA)
+            + (255 << RED) )
+        } else {
+          output.setRGB(x, y, (0 << ALPHA))
+        }
       }
     }
     

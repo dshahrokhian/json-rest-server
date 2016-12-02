@@ -19,7 +19,7 @@ class MarkedAreasVisualization {
     for (area <- markedAreas.areas) {
       for (x <- area.x until (area.x+area.width)) {
         for (y <- area.y until (area.y+area.height)) {
-          heatMap(x)(y) = 0xc000ff00
+          heatMap(x)(y) = 0xc000ff00 // Yellow with 50% opacity
         }
       }
     }
