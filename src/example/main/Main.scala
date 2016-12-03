@@ -11,6 +11,18 @@ import java.awt.image.BufferedImage
 import example.validation.Jaccard
 
 object Main {
+  
+  def getResultImage(image: BufferedImage, heatMap: BufferedImage, 
+      markedMap: BufferedImage): BufferedImage = {
+    
+    val combined = Jaccard.visualization(heatMap, markedMap)
+    
+    val graphics = image.getGraphics()
+    graphics.drawImage(combined, 0, 0, null)
+    
+    return image
+  }
+  
   def main(args: Array[String]) {
     
     val imagePath = "src/example/resources/";
@@ -18,11 +30,12 @@ object Main {
     val validationPath = imagePath + "userData/validation/"
     
     val image = ImageIO.read(new File(imagePath + "test_image.jpg"))
-    
     val algorithm = new SneakPeekAlgorithm(image)
     val validation = new MarkedAreasVisualization(image)
     
-    for (i <- 0 to 18) {
+    // Read all event data
+    val nEvents = Option(new File(dataPath).list).map(_.filter(_.endsWith(".json")).size).getOrElse(0)
+    for (i <- 0 until nEvents) {
       val ev = JSON2InterestEvent.file2interestEvent(dataPath + i + ".json")
       algorithm.addEvent(ev)
     }
@@ -34,17 +47,12 @@ object Main {
     val markedMap = validation.getMarkedAreas()
     
     // Save as new image
-    ImageIO.write(heatMap, "PNG", new File(imagePath, "result_image.png"));
+    ImageIO.write(heatMap, "PNG", new File(imagePath, "heatmap_image.png"));
     ImageIO.write(markedMap, "PNG", new File(imagePath, "marked_image.png"));
 
-    val combined = new BufferedImage(image.getWidth, image.getHeight, 
-        BufferedImage.TYPE_INT_ARGB)
+    val combined = getResultImage(image, heatMap, markedMap)
     
-    val graphics = combined.getGraphics();
-    graphics.drawImage(image, 0, 0, null);
-    graphics.drawImage(markedMap, 0, 0, null);
-    graphics.drawImage(heatMap, 0, 0, null);
-    
+    // Analysis results
     println("Jaccard similarity: " + Jaccard.similarity(markedMap, heatMap))
     ImageIO.write(combined, "PNG", new File(imagePath, "validation.png"));
   }
