@@ -59,8 +59,10 @@ class SneakPeekAlgorithm {
     val output = new BufferedImage(image.getWidth, image.getHeight, 
         BufferedImage.TYPE_INT_ARGB)
     
-    for (x <- 0 until image.getWidth) {
-      for (y <- 0 until image.getHeight) {
+    for (
+        x <- 0 until image.getWidth;
+        y <- 0 until image.getHeight
+        ) {
         // Create a Red overlay with the interest, with a maximum transparency of 50%
         if(heatMap(x)(y) > 0) {
           output.setRGB(x, y, 
@@ -69,7 +71,6 @@ class SneakPeekAlgorithm {
         } else {
           output.setRGB(x, y, (0 << ALPHA))
         }
-      }
     }
     
     return output;
@@ -105,11 +106,12 @@ class SneakPeekAlgorithm {
   
   /** Applies the interest to the event's area, and updates the maximum interest seen so far */
   private def apply(interest : Float, ev : InterestEvent) = {
-    for (x <- ev.upper_left_x until ev.bottom_right_x) {
-      for (y <- ev.upper_left_y until ev.bottom_right_y) {
+    for (
+        x <- ev.upper_left_x until ev.bottom_right_x;
+        y <- ev.upper_left_y until ev.bottom_right_y
+        ) {
         heatMap(x)(y) += interest
         maxInterestVal = max(maxInterestVal, heatMap(x)(y))
-      }
     }
   }
   
