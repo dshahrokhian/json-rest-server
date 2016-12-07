@@ -1,17 +1,16 @@
 package main
 
+import java.awt.image.BufferedImage
 import java.io.File
 
-import validation.MarkedAreasVisualization
 import javax.imageio.ImageIO
 import sneakPeek.JSON2InterestEvent
+import sneakPeek.Masks.ALPHA
 import sneakPeek.SneakPeekAlgorithm
 import validation.JSON2MarkedAreas
-import java.awt.image.BufferedImage
 import validation.Jaccard
 import validation.MarkedAreas
-import scala.reflect.io.Path
-import scala.util.Try
+import validation.MarkedAreasVisualization
 
 object Main {
   
@@ -44,6 +43,37 @@ object Main {
     return (new File(directoryName)).listFiles.filter(_.isDirectory).map(_.getName)
   }
   
+  def getAverageHeatMap(heatMaps: Array[BufferedImage]): BufferedImage = {
+    val width = heatMaps(0).getWidth
+    val height = heatMaps(0).getHeight
+    
+    val result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    val avgPixels = Array.tabulate(width, height)( (x,y) => 0 )
+    
+    for (
+        heatMap <- heatMaps;
+        x <- 0 until width;
+        y <- 0 until height
+        ) {
+      // Extract Alpha Channel
+      avgPixels(x)(y) = avgPixels(x)(y) + ( (heatMap.getRGB(x, y) & 0xff000000) >>> ALPHA) 
+    }
+    
+    for (
+        x <- 0 until width;
+        y <- 0 until height
+        ) {
+      // Filter only results above the threshold (25% opacity)
+      avgPixels(x)(y) = ( ((avgPixels(x)(y) / heatMaps.length) << ALPHA) | 0x00ff0000 )
+      if ((avgPixels(x)(y) >>> ALPHA) > 64) {
+        result.setRGB(x, y, avgPixels(x)(y))
+      }
+    }
+    
+    return result
+  }
+
+  
   def main(args: Array[String]) {
     
     val dataPath = "test/resources/user_data/test/"
@@ -55,26 +85,26 @@ object Main {
     
     for (test <- tests) {
       val testPath = dataPath + test + "/";
-
+      
+      val heatMaps = new Array[BufferedImage](getListOfSubDirectories(testPath).length)
+      
       val image = ImageIO.read(new File(testPath + "test_image.jpg"))
-    
-      for (user <- getListOfSubDirectories(testPath)) {
+
+      val userRecords = getListOfSubDirectories(testPath)
+      for (i <- 0 until userRecords.length) {
+        val user = userRecords(i)
         val userRecordingPath = testPath + user + "/"
         
         val algorithm = new SneakPeekAlgorithm(image)
         val validation = new MarkedAreasVisualization(image)
         
         // Read all event data
-        val nEvents = Option(
-                            new File(userRecordingPath).list)
-                            .map(_.filter(_.endsWith(".json")).size
-                            ).getOrElse(0)
-                            
-        for (i <- 0 until nEvents) {
-          val ev = JSON2InterestEvent.file2interestEvent(userRecordingPath + i + ".json")
+        val events = JSON2InterestEvent.folder2interestEvents(userRecordingPath)
+        for (ev <- events) {
           algorithm.addEvent(ev)
         }
         val heatMap = algorithm.getHeatMap()
+        heatMaps(i) = heatMap
         
         // Validate the results of the algorithm
         validation.setAreas(getUserMarkedAreas(test, user, allMarkedAreas))
@@ -86,8 +116,10 @@ object Main {
         ImageIO.write(heatMap, "PNG", new File(userRecordingPath, "heatmap_image.png"));
         ImageIO.write(markedMap, "PNG", new File(userRecordingPath, "marked_image.png"));
         val combined = getResultImage(image, heatMap, markedMap)
-        ImageIO.write(combined, "PNG", new File(userRecordingPath, "validation.png"));
+        ImageIO.write(combined, "PNG", new File(userRecordingPath, "validation_image.png"));
       }
+      val avgHeatMap = getAverageHeatMap(heatMaps)
+      ImageIO.write(avgHeatMap, "PNG", new File(testPath, "average_image.png"));
     }
   }
 }
