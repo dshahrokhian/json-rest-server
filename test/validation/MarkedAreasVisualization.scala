@@ -1,7 +1,7 @@
 package validation
 
-import java.awt.image.BufferedImage
 import java.awt.Color
+import java.awt.image.BufferedImage
 
 class MarkedAreasVisualization {
   

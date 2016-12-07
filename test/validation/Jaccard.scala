@@ -1,11 +1,12 @@
 package validation
 
 import java.awt.image.BufferedImage
+
 import scala.util.Try
 
+import sneakPeek.Masks.ALPHA
+
 object Jaccard {
-  private val ALPHA = 24; /* Shifting with this mask will only change the
-  																Alpha byte in a ARGB Int */
   
   def similarity(img1: BufferedImage, img2: BufferedImage) : Float = {
     assertSameSize(img1, img2)

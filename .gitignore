@@ -6,3 +6,4 @@ npm-debug.log
 *.jpeg
 *.png
 *.gif
+.cache-tests

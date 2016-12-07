@@ -1,7 +1,9 @@
 package validation
 
-import org.json4s._
-import org.json4s.native.JsonMethods._
+import org.json4s.DefaultFormats
+import org.json4s.jvalue2extractable
+import org.json4s.native.JsonMethods.parse
+import org.json4s.string2JsonInput
 
 object JSON2MarkedAreas {
   implicit val formats = DefaultFormats

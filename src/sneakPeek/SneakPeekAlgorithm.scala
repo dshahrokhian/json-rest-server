@@ -1,19 +1,14 @@
 package sneakPeek
 
-import Math.abs
-import Math.max
-import Math.min
 import java.awt.image.BufferedImage
-import java.awt.Graphics2D
-import java.awt.Color
-import java.awt.Graphics
+import java.lang.Math.abs
+import java.lang.Math.max
+
+import sneakPeek.Masks.ALPHA
+import sneakPeek.Masks.RED
 
 class SneakPeekAlgorithm {  
   
-  private val RED = 16; /* Shifting with this mask will only change the
-                                   Red byte in a ARGB Int */
-  private val ALPHA = 24; /* Shifting with this mask will only change the
-  																Alpha byte in a ARGB Int */
   private var image : BufferedImage = _
   private var maxInterestVal = Float.MinValue
   private var prevEvent: Option[InterestEvent] = None
