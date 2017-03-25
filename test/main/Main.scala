@@ -63,8 +63,8 @@ object Main {
         x <- 0 until width;
         y <- 0 until height
         ) {
-      // Filter only results above the threshold (25% opacity)
       avgPixels(x)(y) = ( ((avgPixels(x)(y) / heatMaps.length) << ALPHA) | 0x00ff0000 )
+      // Filter only results above the threshold (25% opacity)
       if ((avgPixels(x)(y) >>> ALPHA) > 64) {
         result.setRGB(x, y, avgPixels(x)(y))
       }
@@ -84,6 +84,9 @@ object Main {
     val tests = getListOfSubDirectories(dataPath)
     
     for (test <- tests) {
+      var mean = 0F
+      var max = 0F
+      var min = Float.MaxValue
       val testPath = dataPath + test + "/";
       
       val heatMaps = new Array[BufferedImage](getListOfSubDirectories(testPath).length)
@@ -109,9 +112,10 @@ object Main {
         // Validate the results of the algorithm
         validation.setAreas(getUserMarkedAreas(test, user, allMarkedAreas))
         val markedMap = validation.getMarkedAreas()
-        println("Jaccard similarity[" + "test=" + test + ", user=" + user + "]: " 
-            + Jaccard.similarity(markedMap, heatMap))
         
+        mean += Jaccard.similarity(markedMap, heatMap)
+        max = Math.max(max, Jaccard.similarity(markedMap, heatMap))
+        min = Math.min(min, Jaccard.similarity(markedMap, heatMap))
         // Save as new image
         ImageIO.write(heatMap, "PNG", new File(userRecordingPath, "heatmap_image.png"));
         ImageIO.write(markedMap, "PNG", new File(userRecordingPath, "marked_image.png"));
@@ -120,6 +124,9 @@ object Main {
       }
       val avgHeatMap = getAverageHeatMap(heatMaps)
       ImageIO.write(avgHeatMap, "PNG", new File(testPath, "average_image.png"));
+      println("mean jaccard for image " + test + ": " + (mean/userRecords.length))
+      println("max jaccard for image " + test + ": " + (max))
+      println("min jaccard for image " + test + ": " + (min))
     }
   }
 }
